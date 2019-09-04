@@ -4,5 +4,7 @@ public interface TokenType {
 
     String getValue();
 
-    TokenType getType();
+    default TokenType getType() {
+        return this;
+    }
 }

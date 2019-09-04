@@ -6,5 +6,6 @@ public class EntryPoint {
         Lexer lexer = new Lexer(EntryPoint.class.getClassLoader().getResourceAsStream("testFile.js"));
         System.out.println(lexer.getToken());
         System.out.println(lexer.getToken());
+        System.out.println(lexer.getToken());
     }
 }

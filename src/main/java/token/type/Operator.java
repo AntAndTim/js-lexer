@@ -15,7 +15,7 @@ public enum Operator implements TokenType {
     ASSIGNMENT6(">>="),
     ASSIGNMENT7(">>>=");
 
-    private String value;
+    private final String value;
 
     Operator(String value) {
         this.value = value;
@@ -24,10 +24,5 @@ public enum Operator implements TokenType {
     @Override
     public String getValue() {
         return value;
-    }
-
-    @Override
-    public TokenType getType() {
-        return this;
     }
 }

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import token.Token;
 import token.TokenType;
+import token.type.Identifier;
 import token.type.Keyword;
 import token.type.Operator;
 
@@ -31,6 +32,9 @@ public class Lexer {
         while (!checkValue(value)) {
             symbol = readSymbol();
             value += getValue(symbol);
+            if (symbol == ' ' && !value.equals("")) {
+                return new Token(Identifier.IDENTIFIER, value, currentPosition - value.length() - 1, currentLine);
+            }
         }
         return new Token(LANGUAGE_ELEMENTS.get(value), value, currentPosition - value.length(), currentLine);
     }

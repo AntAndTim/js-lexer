@@ -67,7 +67,7 @@ public enum Keyword implements TokenType {
     IMPORT("import"),
     SUPER("super");
 
-    private String value;
+    private final String value;
 
     Keyword(String value) {
         this.value = value;
@@ -76,10 +76,5 @@ public enum Keyword implements TokenType {
     @Override
     public String getValue() {
         return value;
-    }
-
-    @Override
-    public TokenType getType() {
-        return this;
     }
 }

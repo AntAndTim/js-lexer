@@ -1,8 +1,7 @@
-import token.Token;
-import token.type.Delimiter;
-
 import java.io.EOFException;
 import java.io.IOException;
+import token.Token;
+import token.type.Delimiter;
 
 public class EntryPoint {
 

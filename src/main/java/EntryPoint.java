@@ -1,3 +1,6 @@
+import token.Token;
+import token.type.Delimiter;
+
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -7,7 +10,11 @@ public class EntryPoint {
         Lexer lexer = new Lexer(EntryPoint.class.getClassLoader().getResourceAsStream("test4.js"));
         while (true) {
             try {
-                System.out.println(lexer.getToken());
+                Token token = lexer.getToken();
+
+                if (token.getType() != Delimiter.WHITESPACE) {
+                    System.out.println(token);
+                }
             } catch (EOFException e) {
                 break;
             }

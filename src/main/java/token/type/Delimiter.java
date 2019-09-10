@@ -10,8 +10,6 @@ public enum Delimiter implements TokenType {
     CLOSING_PARENTHESIS(")"),
     OPENING_BRACKETS("["),
     CLOSING_BRACKETS("]"),
-    OPENING_ANGEL_BRACKETS("<"),
-    CLOSING_ANGEL_BRACKET(">"),
     DOUBLE_QUOTES("\""),
     SINGLE_QUOTES("\'"),
     SINGLE_QUOTES_2("`"),
@@ -19,7 +17,6 @@ public enum Delimiter implements TokenType {
     DOT("."),
     SEMICOLON(";"),
     NEWLINE("\n");
-
 
     private final String value;
 

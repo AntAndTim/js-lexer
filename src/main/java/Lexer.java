@@ -3,15 +3,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import token.Token;
 import token.TokenType;
-import token.type.Delimiter;
-import token.type.Identifier;
-import token.type.Keyword;
-import token.type.Operator;
+import token.type.*;
 
 public class Lexer {
 
@@ -25,33 +21,74 @@ public class Lexer {
     private int currentPosition = 1;
     private int currentLine = 1;
     private boolean startFromNextLine;
-    private Optional<Token> nextToken = Optional.empty();
+    private String lastUnhandled = null;
 
     public Lexer(InputStream jsFileStream) {
         this.jsFileStream = jsFileStream;
     }
 
     Token getToken() throws IOException {
-        if (nextToken.isPresent()) {
-            Token token = nextToken.get();
-            nextToken = Optional.empty();
-            return token;
-        }
-        char symbol = readSymbol();
-        String value = getValue(symbol);
-        while (!checkValue(value)) {
-            symbol = readSymbol();
-            String newSymbolValue = getValue(symbol);
-            if (checkValue(newSymbolValue) && !value.equals("")) {
-                nextToken = Optional.of(getElement(newSymbolValue));
-                return getIdentifier(value);
-            }
-            value += newSymbolValue;
+        String value;
+
+        if (lastUnhandled != null) {
+            value = lastUnhandled;
+            lastUnhandled = null;
+        } else {
+            char symbol = readSymbol();
+
             if (symbol == EOF) {
                 throw new EOFException("All the possible tokens already obtained");
             }
+
+            value = String.valueOf(symbol);
         }
-        return getElement(value);
+
+        boolean potentialIdentifier = value.matches("[a-z]|[A-Z]|\\$|_");
+        boolean numberLiteral = value.matches("[0-9]");
+
+        while (true) {
+            char symbol = readSymbol();
+
+            if (symbol == EOF) {
+                if (potentialIdentifier) {
+                    return getIdentifier(value);
+                } else {
+                    if (numberLiteral) {
+                        return getNumberLiteral(value);
+                    }
+
+                    return getElement(value);
+                }
+            }
+
+            String newSymbolValue = String.valueOf(symbol);
+
+            if (potentialIdentifier && !newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]")) {
+                lastUnhandled = newSymbolValue;
+
+                if (checkValue(value)) {
+                    return getElement(value);
+                } else {
+                    return getIdentifier(value);
+                }
+            }
+
+            if (!potentialIdentifier && checkValue(value) && !checkValue(value + newSymbolValue)) {
+                lastUnhandled = newSymbolValue;
+                return getElement(value);
+            }
+
+            if (numberLiteral && !newSymbolValue.matches("[0-9]")) {
+                lastUnhandled = newSymbolValue;
+                return getNumberLiteral(value);
+            }
+
+            value += newSymbolValue;
+        }
+    }
+
+    private Token getNumberLiteral(String value) {
+        return new Token(NumberLiteral.NUMBER_LITERAL, value, currentPosition - value.length() - 1, currentLine);
     }
 
     private Token getIdentifier(String value) {
@@ -63,10 +100,6 @@ public class Lexer {
                          value.equals("\n") ? "\\n" : value,
                          currentPosition - value.length(),
                          currentLine);
-    }
-
-    private String getValue(char symbol) {
-        return symbol == ' ' ? "" : String.valueOf(symbol);
     }
 
     private boolean checkValue(String value) {

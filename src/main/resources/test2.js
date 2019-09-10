@@ -1,10 +1,4 @@
-let str = "Hello";
+let numbers = [4, 3, 7];
 
-let iterator = str[Symbol.iterator]();
-
-while (true) {
-    let result =         iterator.next();
-    if (
-        result.done) break;
-    alert(result.value);
-}
+console.log(fruits[0]);
+alert( fruits[1] )

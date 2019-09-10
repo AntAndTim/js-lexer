@@ -1,4 +1,9 @@
-let str = '<h1>Hello, world!</h1>';
-let regexp = /<(.*?)>/g;
+new Promise(function(resolve, reject) {
+    setTimeout(() =>
+        resolve(1),         1000);
+}). then(function(result) {
+    alert(result);
+        return result * 2;
+})
+;
 
-let matchAll = str.matchAll(regexp);

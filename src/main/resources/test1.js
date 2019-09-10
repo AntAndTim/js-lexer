@@ -1,10 +1,10 @@
-let accessAllowed;
-let age = prompt('How old are you?', '');
+let access_is_allowed;
+let my_age = 19;
 
-if (age > 18) {
-    accessAllowed = true;
+if (my_age > 18) {
+    access_is_allowed = true;
 } else {
-    accessAllowed = false;
+    access_is_allowed = false;
 }
 
-alert(accessAllowed);
+alert(access_is_allowed);

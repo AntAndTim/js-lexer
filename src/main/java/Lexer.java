@@ -1,6 +1,8 @@
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,14 +24,14 @@ public class Lexer {
         .collect(Collectors.toMap(anEnum -> anEnum.getValue(), anEnum -> anEnum));
     private static final char EOF = (char) -1;
 
-    private final InputStream jsFileStream;
+    private final InputStreamReader jsFileStream;
     private int currentPosition = 1;
     private int currentLine = 1;
     private boolean startFromNextLine;
     private String lastUnhandled = null;
 
-    public Lexer(InputStream jsFileStream) {
-        this.jsFileStream = jsFileStream;
+    Lexer(InputStream jsFileStream) {
+        this.jsFileStream = new InputStreamReader(jsFileStream, Charset.forName("UTF-8"));
     }
 
     Token getToken() throws IOException {
@@ -48,11 +50,11 @@ public class Lexer {
             value = String.valueOf(symbol);
         }
 
-        if (!checkValue(value) && !value.matches("[a-z]|[A-Z]|\\$|_|[0-9]|[а-я]")) {
+        if (!checkValue(value) && !value.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
             return getUnknown(value);
         }
 
-        boolean potentialIdentifier = value.matches("[a-z]|[A-Z]|\\$|_");
+        boolean potentialIdentifier = value.matches("[[a-z][A-Z]$_]");
         boolean numberLiteral = value.matches("[0-9]");
 
         while (true) {
@@ -72,7 +74,7 @@ public class Lexer {
             String newSymbolValue = String.valueOf(symbol);
 
             if (potentialIdentifier) {
-                if (!newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]|[а-я]")) {
+                if (!newSymbolValue.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
                     lastUnhandled = newSymbolValue;
                     return checkValue(value) ? getElement(value) : getIdentifier(value);
                 }
@@ -86,7 +88,7 @@ public class Lexer {
                 return getNumberLiteral(value);
             }
 
-            if (!checkValue(value) && !newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]|[а-я]")) {
+            if (!checkValue(value) && !newSymbolValue.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
                 lastUnhandled = newSymbolValue;
                 return getUnknown(value);
             }

@@ -88,11 +88,6 @@ public class Lexer {
                 return getNumberLiteral(value);
             }
 
-            if (!checkValue(value) && !newSymbolValue.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
-                lastUnhandled = newSymbolValue;
-                return getUnknown(value);
-            }
-
             value += newSymbolValue;
         }
     }

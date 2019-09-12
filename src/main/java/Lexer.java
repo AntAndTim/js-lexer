@@ -7,7 +7,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import token.Token;
 import token.TokenType;
-import token.type.*;
+import token.type.Delimiter;
+import token.type.Identifier;
+import token.type.Keyword;
+import token.type.NumberLiteral;
+import token.type.Operator;
+import token.type.Unknown;
 
 public class Lexer {
 
@@ -43,6 +48,10 @@ public class Lexer {
             value = String.valueOf(symbol);
         }
 
+        if (!checkValue(value) && !value.matches("[a-z]|[A-Z]|\\$|_|[0-9]|[а-я]")) {
+            return getUnknown(value);
+        }
+
         boolean potentialIdentifier = value.matches("[a-z]|[A-Z]|\\$|_");
         boolean numberLiteral = value.matches("[0-9]");
 
@@ -56,24 +65,18 @@ public class Lexer {
                     if (numberLiteral) {
                         return getNumberLiteral(value);
                     }
-
                     return getElement(value);
                 }
             }
 
             String newSymbolValue = String.valueOf(symbol);
 
-            if (potentialIdentifier && !newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]")) {
-                lastUnhandled = newSymbolValue;
-
-                if (checkValue(value)) {
-                    return getElement(value);
-                } else {
-                    return getIdentifier(value);
+            if (potentialIdentifier) {
+                if (!newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]|[а-я]")) {
+                    lastUnhandled = newSymbolValue;
+                    return checkValue(value) ? getElement(value) : getIdentifier(value);
                 }
-            }
-
-            if (!potentialIdentifier && checkValue(value) && !checkValue(value + newSymbolValue)) {
+            } else if (checkValue(value) && !checkValue(value + newSymbolValue)) {
                 lastUnhandled = newSymbolValue;
                 return getElement(value);
             }
@@ -81,6 +84,11 @@ public class Lexer {
             if (numberLiteral && !newSymbolValue.matches("[0-9]")) {
                 lastUnhandled = newSymbolValue;
                 return getNumberLiteral(value);
+            }
+
+            if (!checkValue(value) && !newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]|[а-я]")) {
+                lastUnhandled = newSymbolValue;
+                return getUnknown(value);
             }
 
             value += newSymbolValue;
@@ -97,6 +105,13 @@ public class Lexer {
 
     private Token getElement(String value) {
         return new Token(LANGUAGE_ELEMENTS.get(value),
+                         value.equals("\n") ? "\\n" : value,
+                         currentPosition - value.length(),
+                         currentLine);
+    }
+
+    private Token getUnknown(String value) {
+        return new Token(Unknown.UNKNOWN,
                          value.equals("\n") ? "\\n" : value,
                          currentPosition - value.length(),
                          currentLine);

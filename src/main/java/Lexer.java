@@ -1,13 +1,20 @@
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import token.Token;
 import token.TokenType;
-import token.type.*;
+import token.type.Delimiter;
+import token.type.Identifier;
+import token.type.Keyword;
+import token.type.NumberLiteral;
+import token.type.Operator;
+import token.type.Unknown;
 
 public class Lexer {
 
@@ -17,14 +24,14 @@ public class Lexer {
         .collect(Collectors.toMap(anEnum -> anEnum.getValue(), anEnum -> anEnum));
     private static final char EOF = (char) -1;
 
-    private final InputStream jsFileStream;
+    private final InputStreamReader jsFileStream;
     private int currentPosition = 1;
     private int currentLine = 1;
     private boolean startFromNextLine;
     private String lastUnhandled = null;
 
-    public Lexer(InputStream jsFileStream) {
-        this.jsFileStream = jsFileStream;
+    Lexer(InputStream jsFileStream) {
+        this.jsFileStream = new InputStreamReader(jsFileStream, Charset.forName("UTF-8"));
     }
 
     Token getToken() throws IOException {
@@ -43,7 +50,11 @@ public class Lexer {
             value = String.valueOf(symbol);
         }
 
-        boolean potentialIdentifier = value.matches("[a-z]|[A-Z]|\\$|_");
+        if (!checkValue(value) && !value.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
+            return getUnknown(value);
+        }
+
+        boolean potentialIdentifier = value.matches("[[a-z][A-Z]$_]");
         boolean numberLiteral = value.matches("[0-9]");
 
         while (true) {
@@ -56,24 +67,18 @@ public class Lexer {
                     if (numberLiteral) {
                         return getNumberLiteral(value);
                     }
-
                     return getElement(value);
                 }
             }
 
             String newSymbolValue = String.valueOf(symbol);
 
-            if (potentialIdentifier && !newSymbolValue.matches("[a-z]|[A-Z]|\\$|_|[0-9]")) {
-                lastUnhandled = newSymbolValue;
-
-                if (checkValue(value)) {
-                    return getElement(value);
-                } else {
-                    return getIdentifier(value);
+            if (potentialIdentifier) {
+                if (!newSymbolValue.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
+                    lastUnhandled = newSymbolValue;
+                    return checkValue(value) ? getElement(value) : getIdentifier(value);
                 }
-            }
-
-            if (!potentialIdentifier && checkValue(value) && !checkValue(value + newSymbolValue)) {
+            } else if (checkValue(value) && !checkValue(value + newSymbolValue)) {
                 lastUnhandled = newSymbolValue;
                 return getElement(value);
             }
@@ -97,6 +102,13 @@ public class Lexer {
 
     private Token getElement(String value) {
         return new Token(LANGUAGE_ELEMENTS.get(value),
+                         value.equals("\n") ? "\\n" : value,
+                         currentPosition - value.length(),
+                         currentLine);
+    }
+
+    private Token getUnknown(String value) {
+        return new Token(Unknown.UNKNOWN,
                          value.equals("\n") ? "\\n" : value,
                          currentPosition - value.length(),
                          currentLine);

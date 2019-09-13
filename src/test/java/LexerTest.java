@@ -3,6 +3,7 @@ import static junit.framework.TestCase.assertEquals;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Scanner;
 import org.junit.Test;
 import token.Token;
@@ -60,9 +61,10 @@ public class LexerTest {
     }
 
     private String expectedResult() throws IOException {
-        InputStream fileStream = LexerTest.class
-            .getClassLoader()
-            .getResource(String.format("results/%s", fileName))
+        InputStream fileStream = Objects.requireNonNull(
+            LexerTest.class
+                .getClassLoader()
+                .getResource(String.format("results/%s", fileName)))
             .openStream();
 
         StringBuilder res = new StringBuilder();

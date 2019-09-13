@@ -6,7 +6,7 @@ import token.type.Delimiter;
 public class EntryPoint {
 
     public static void main(String[] args) throws IOException {
-        Lexer lexer = new Lexer(EntryPoint.class.getClassLoader().getResourceAsStream("test4.js"));
+        Lexer lexer = new Lexer(EntryPoint.class.getClassLoader().getResourceAsStream("test2.js"));
         while (true) {
             try {
                 Token token = lexer.getToken();

@@ -54,7 +54,7 @@ public class Lexer {
             return getUnknown(value);
         }
 
-        boolean potentialIdentifier = value.matches("[[a-z][A-Z]$_]");
+        boolean potentialIdentifier = value.matches("[[a-z][A-Z]$_[а-я][А-Я]]");
         boolean numberLiteral = value.matches("[0-9]");
 
         while (true) {

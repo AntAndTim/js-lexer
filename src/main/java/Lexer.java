@@ -42,12 +42,11 @@ public class Lexer {
             lastUnhandled = null;
         } else {
             char symbol = readSymbol();
-
-            if (symbol == EOF) {
-                throw new EOFException("All the possible tokens already obtained");
-            }
-
             value = String.valueOf(symbol);
+        }
+
+        if (value.charAt(0) == EOF) {
+            throw new EOFException("All the possible tokens already obtained");
         }
 
         if (!checkValue(value) && !value.matches("[[a-z][A-Z]$_[0-9][а-я][А-Я]]")) {
@@ -59,17 +58,6 @@ public class Lexer {
 
         while (true) {
             char symbol = readSymbol();
-
-            if (symbol == EOF) {
-                if (potentialIdentifier) {
-                    return getIdentifier(value);
-                } else {
-                    if (numberLiteral) {
-                        return getNumberLiteral(value);
-                    }
-                    return getElement(value);
-                }
-            }
 
             String newSymbolValue = String.valueOf(symbol);
 

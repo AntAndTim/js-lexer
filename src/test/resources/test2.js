@@ -1,5 +1,5 @@
-let numbers = [4, 3, 7];
-#№
+let числа = [4, 3, 7];
+№#
 
-console.log(fruits[0]);
-alert( fruits[1] )
+console.log(числа[0]);
+alert( числа[1] )
